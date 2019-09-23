@@ -44,7 +44,7 @@ const (
 \*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
 
 func IsTlmPacket(b []byte) bool {
-	return len(b) > 0 && FrameTypeTlm.Id() == b[0]
+	return tlmValidatePayload(b) == nil
 }
 
 
@@ -54,12 +54,27 @@ func IsTlmPacket(b []byte) bool {
 ▏                                                        ▕
 \*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
 
+
 func newErrTlmPacketSize(exp, act int) error {
 	return fmt.Errorf(errTlmPacketSize, exp, act)
 }
+
 func newErrTlmPacketType(act byte) error {
 	return fmt.Errorf(errTlmPacketType, FrameTypeTlm.Id(), act)
 }
+
+func tlmValidatePayload(b []byte) error {
+	if len(b) != tlmSize {
+		return newErrTlmPacketSize(tlmSize, len(b))
+	}
+
+	if b[0] != FrameTypeTlm.Id() {
+		return newErrTlmPacketType(b[0])
+	}
+
+	return nil
+}
+
 
 /*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
 ▏                                                        ▕
@@ -124,12 +139,8 @@ func (t tlmFrame) ToBytes() (out []byte) {
 }
 
 func (t *tlmFrame) FromBytes(b []byte) error {
-	if len(b) != tlmSize {
-		return newErrTlmPacketSize(tlmSize, len(b))
-	}
-
-	if b[0] != t.Type().Id() {
-		return newErrTlmPacketType(b[0])
+	if e := tlmValidatePayload(b); e != nil {
+		return e
 	}
 
 	t.version = b[1]

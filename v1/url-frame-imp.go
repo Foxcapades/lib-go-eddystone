@@ -16,13 +16,58 @@ import (
 const (
 	urlMinLen = 4
 	urlMaxLen = 20
-
-	urlFrameString = "UrlFrame{TxPower: %d, Url: \"%s\"}"
-	urlFrameJson   = `{"type":"%s","typeId":%d,"txPower":%d,"url":"%s"}`
-
-	errUrlBadLen  = "invalid url packet length: %d"
-	errUrlBadType = "frame type mismatch; expected 0x%x, got 0x%x"
 )
+
+const (
+	urlFrameString = "UrlFrame{TxPower: %d, Url: %s}"
+	urlFrameJson   = `{"type":"%s","typeId":%d,"txPower":%d,"url":"%s"}`
+)
+
+const (
+	errUrlBadLen  = "invalid url packet length; expected between %d and %d, got %d"
+	errUrlBadType = "invalid url frame type id; expected 0x%x, got 0x%x"
+)
+
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Internal Helpers                                      ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+
+func IsUrlPacket(b []byte) bool {
+	return urlValidatePayload(b) == nil
+}
+
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Internal Helpers                                      ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+
+func newUrlLengthError(l int) error {
+	return fmt.Errorf(errUrlBadLen, urlMinLen, urlMaxLen, l)
+}
+
+func newUrlTypeError(b byte) error {
+	return fmt.Errorf(errUrlBadType, FrameTypeUrl.Id(), b)
+}
+
+func urlValidatePayload(b []byte) error {
+	l := len(b)
+	if urlMinLen <= l && l <= urlMaxLen {
+		return newUidLengthError(l)
+	}
+
+	if b[0] != FrameTypeUrl.Id() {
+		return newUidTypeError(b[0])
+	}
+
+	return nil
+}
 
 
 /*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
@@ -70,20 +115,18 @@ func (u *urlFrame) ToBytes() []byte {
 
 	pos = int8(strings.Index(u.value, u.suffix.Value()))
 
-	var i uint8
-	var v uint8
 	if pos == -1 {
-		for i, v = range u.value {
-			out[i+3] = v
+		for i, v := range u.value {
+			out[i+3] = byte(v)
 		}
 	} else {
-		var offset uint8 = 3
-		for i, v = range u.value {
-			if i == uint8(pos) {
-				offset += uint8(len(u.suffix.Value()))
+		offset := 3
+		for i, v := range u.value {
+			if uint8(i) == uint8(pos) {
+				offset += len(u.suffix.Value())
 			}
 
-			out[i + offset] = v
+			out[i + offset] = byte(v)
 		}
 	}
 
@@ -91,13 +134,8 @@ func (u *urlFrame) ToBytes() []byte {
 }
 
 func (u *urlFrame) FromBytes(b []byte) (e error) {
-	l := len(b)
-	if urlMinLen <= l && l <= urlMaxLen {
-		return fmt.Errorf(errUrlBadLen, l)
-	}
-
-	if b[0] != u.Type().Id() {
-		return fmt.Errorf(errUrlBadType, u.Type().Id(), b[0])
+	if e := urlValidatePayload(b); e != nil {
+		return e
 	}
 
 	u.txPower = b[1]

@@ -1,7 +1,6 @@
 package eddystone
 
 import (
-	"fmt"
 	"math"
 	"strings"
 )
@@ -39,9 +38,12 @@ func byteToHex(i byte, sb *strings.Builder) {
 func digitToHex(i byte) byte {
 	if i < 10 {
 		return '0' + i
-	} else if i < 16 {
+	}
+
+	if i < 16 {
 		return 'a' + (i - 10)
 	}
+
 	panic("cannot convert values greater than 15")
 }
 
@@ -59,5 +61,16 @@ func (b byteValue) Value() string {
 }
 
 func (b byteValue) String() string {
-	return fmt.Sprintf("0x%x: %s", b.id, b.val)
+	ln  := len(b.val)
+	buf := make([]byte, ln + 6)
+	buf[0] = '0'
+	buf[1] = 'x'
+	buf[2] = digitToHex(b.id / 16)
+	buf[3] = digitToHex(b.id % 16)
+	buf[4] = ':'
+	buf[5] = ' '
+	for i := 0; i < ln; i++ {
+		buf[i + 6] = b.val[i]
+	}
+	return string(buf)
 }

@@ -22,10 +22,14 @@ var defaultFrameFactory FrameFactory = &frameFactory{
 \*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
 
 
+// Default returns the current default FrameFactory
+// instance.
 func Default() FrameFactory {
 	return defaultFrameFactory
 }
 
+// SetDefaultFactory overrides the default FrameFactory
+// instance with the given value
 func SetDefaultFactory(f FrameFactory) {
 	defaultFrameFactory = f
 }

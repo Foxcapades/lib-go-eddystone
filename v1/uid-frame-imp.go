@@ -19,7 +19,9 @@ const (
 	uidFrameLen   = 31 // TODO: confirm this is how it is reported...
 	uidNSpaceLen  = 10
 	uidIdenLen    = 6
+)
 
+const (
 	uidFormatString = "UidFrame{Type: 0x%x, TxPower: %d, UUID: %s}"
 	uidFormatJson   = `{` +
 		`"type":"%s",` +
@@ -27,10 +29,55 @@ const (
 		`"txPower": %d,` +
 		`"uuid": "%s"` +
 		`}`
+)
 
+const(
 	errUidBadLen  = "invalid UID frame length; expected %d, got %d"
 	errUidBadType = "invalid UID frame type; expected 0x%x, got 0x%x"
 )
+
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Exported Functions                                    ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+
+func IsUidPacket(b []byte) bool {
+	return uidValidatePayload(b) == nil
+}
+
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Internal Helpers                                      ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+
+func newUidLengthError(act int) error {
+	return fmt.Errorf(errUidBadLen, uidFrameLen, act)
+}
+
+func newUidTypeError(act byte) error {
+	return fmt.Errorf(errUidBadType, FrameTypeUid.Id(), act)
+}
+
+// Checks the given byte slice to confirm that it at least
+// looks like a UID packet by checking length and type
+// indicator.
+func uidValidatePayload(b []byte) error {
+	if len(b) != uidFrameLen {
+		return newUidLengthError(len(b))
+	}
+
+	if b[0] != FrameTypeUid.Id() {
+		return newUidTypeError(b[0])
+	}
+
+	return nil
+}
 
 
 /*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
@@ -84,16 +131,14 @@ func (u *uidFrame) ToBytes() (out []byte) {
 }
 
 func (u *uidFrame) FromBytes(b []byte) error {
-	if len(b) != uidFrameLen {
-		return fmt.Errorf(errUidBadLen, uidFrameLen, len(b))
+	if e := uidValidatePayload(b); e != nil {
+		return e
 	}
 
 	var off offset
-	z := off.inc()
 
-	if b[z] != u.Type().Id() {
-		return fmt.Errorf(errUidBadType, u.Type().Id(), b[z])
-	}
+	// Skip the type byte
+	_ = off.inc()
 
 	u.power = b[off.inc()]
 
