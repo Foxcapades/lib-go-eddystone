@@ -1,37 +1,31 @@
 package eddystone
 
+import "errors"
 
 /*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
 ▏                                                        ▕
-▏  Internal Static Vars                                  ▕
+▏  Internal Constants                                    ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+const (
+	errNilInput = "input bytes cannot be a nil slice"
+)
+
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Public Functions                                      ▕
 ▏                                                        ▕
 \*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
 
 
-var defaultFrameFactory FrameFactory = &frameFactory{
-	tlm:  func() TlmFrame {return &tlmFrame{}},
-	uuid: func() UidFrame {return &uidFrame{}},
-	url:  func() UrlFrame {return &urlFrame{}},
-}
-
-
-/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
-▏                                                        ▕
-▏  Public Constructors                                   ▕
-▏                                                        ▕
-\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
-
-
-// Default returns the current default FrameFactory
-// instance.
-func Default() FrameFactory {
-	return defaultFrameFactory
-}
-
-// SetDefaultFactory overrides the default FrameFactory
-// instance with the given value
-func SetDefaultFactory(f FrameFactory) {
-	defaultFrameFactory = f
+func NewFrameFactory() FrameFactory {
+	return &frameFactory{
+		tlm:  func() TlmFrame {return &tlmFrame{}},
+		uuid: func() UidFrame {return &uidFrame{}},
+		url:  func() UrlFrame {return &urlFrame{}},
+	}
 }
 
 
@@ -44,25 +38,25 @@ func SetDefaultFactory(f FrameFactory) {
 
 type frameFactory struct {
 	tlm  TlmFrameFac
-	uuid UuidFrameFac
+	uuid UidFrameFac
 	url  UrlFrameFac
 }
 
 func (f frameFactory) NewTlmFrame(b []byte) (o TlmFrame, e error) {
 	o = f.tlm()
-	e = o.FromBytes(b)
+	e = nilCheckBytes(o, b)
 	return
 }
 
-func (f frameFactory) NewUuidFrame(b []byte) (o UidFrame, e error) {
+func (f frameFactory) NewUidFrame(b []byte) (o UidFrame, e error) {
 	o = f.uuid()
-	e = o.FromBytes(b)
+	e = nilCheckBytes(o, b)
 	return
 }
 
 func (f frameFactory) NewUrlFrame(b []byte) (o UrlFrame, e error) {
 	o = f.url()
-	e = o.FromBytes(b)
+	e = nilCheckBytes(o, b)
 	return
 }
 
@@ -71,7 +65,7 @@ func (f *frameFactory) TlmFrameFactory(fac TlmFrameFac) FrameFactory {
 	return f
 }
 
-func (f *frameFactory) UuidFrameFactory(fac UuidFrameFac) FrameFactory {
+func (f *frameFactory) UidFrameFactory(fac UidFrameFac) FrameFactory {
 	f.uuid = fac
 	return f
 }
@@ -81,3 +75,18 @@ func (f *frameFactory) UrlFrameFactory(fac UrlFrameFac) FrameFactory {
 	return f
 }
 
+
+/*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
+▏                                                        ▕
+▏  Internal Helpers                                      ▕
+▏                                                        ▕
+\*⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽⎽*/
+
+
+func nilCheckBytes(f Frame, b []byte) error {
+	if b == nil {
+		return errors.New(errNilInput)
+	}
+
+	return f.FromBytes(b)
+}

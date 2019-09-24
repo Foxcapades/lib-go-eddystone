@@ -11,13 +11,13 @@ package eddystone
 // of the TlmFrame interface
 type TlmFrameFac = func() TlmFrame
 
-// UuidFrameFac produces a new base configuration instance
+// UidFrameFac produces a new base configuration instance
 // of the UidFrame interface
-type UuidFrameFac = func() UidFrame
+type UidFrameFac = func() UidFrame
 
 // UrlFrameFac produces a new base configuration instance of
 // the UrlFrame interface
-type UrlFrameFac  = func() UrlFrame
+type UrlFrameFac = func() UrlFrame
 
 
 /*⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺*\
@@ -36,10 +36,10 @@ type FrameFactory interface {
 	// byte slice
 	NewTlmFrame(b []byte) (TlmFrame, error)
 
-	// NewUuidFrame produces a new instance of the UidFrame
+	// NewUidFrame produces a new instance of the UidFrame
 	// interface populated with the parsed value of the given
 	// byte slice
-	NewUuidFrame(b []byte) (UidFrame, error)
+	NewUidFrame(b []byte) (UidFrame, error)
 
 	// NewUrlFrame produces a new instance of the UrlFrame
 	// interface populated with the parsed value of the given
@@ -54,13 +54,13 @@ type FrameFactory interface {
 	// will only use the latest factory function
 	TlmFrameFactory(fac TlmFrameFac) FrameFactory
 
-	// UuidFrameFactory overrides the default factory method
+	// UidFrameFactory overrides the default factory method
 	// for creating new UidFrame instances with the given
 	// factory function.
 	//
-	// After calling UuidFrameFactory, calls to NewUuidFrame()
+	// After calling UidFrameFactory, calls to NewUidFrame()
 	// will only use the latest factory function
-	UuidFrameFactory(fac UuidFrameFac) FrameFactory
+	UidFrameFactory(fac UidFrameFac) FrameFactory
 
 	// UrlFrameFactory overrides the default factory method
 	// for creating new UrlFrame instances with the given
