@@ -1,4 +1,4 @@
-module github.com/Foxcapades/lib-go-eddystone/v1/mock
+module github.com/Foxcapades/lib-go-eddystone
 
 go 1.13
 
