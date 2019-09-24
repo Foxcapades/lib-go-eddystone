@@ -1,6 +1,7 @@
 package eddystone
 
 import (
+	"github.com/Foxcapades/lib-go-eddystone/v1/mock"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -123,13 +124,13 @@ func TestFrameFactory_NewUidFrame(t *testing.T) {
 		Convey("Given a non nil byte array", func() {
 			Convey("It should call the backing frame FromBytes method", func() {
 				ff := NewFrameFactory()
-				mock := mockUidFrame{}
+				mck := mock.UidFrame{}
 				in := []byte{1, 2, 3}
 
-				ff.UidFrameFactory(func() UidFrame { return &mock })
+				ff.UidFrameFactory(func() UidFrame { return &mck })
 				_, _ = ff.NewUidFrame(in)
 
-				So(mock.mFromBytes.calls, ShouldEqual, 1)
+				So(mck.MFromBytes.calls, ShouldEqual, 1)
 			})
 
 			Convey("It should pass up the frame value from the Uid factory", func() {
