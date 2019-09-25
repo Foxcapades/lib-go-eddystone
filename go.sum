@@ -1,6 +1,13 @@
 github.com/Foxcapades/Beanies v0.0.0-20190924151232-6b1260dd9709 h1:KIW5QqDn2d4wc8/CcR1JVyWZ3BsxJwV802m9FSMwir4=
 github.com/Foxcapades/Beanies v0.0.0-20190924151232-6b1260dd9709/go.mod h1:VZogjGsqmwsPsWLFGBaqe3jVkNkej1ty+txjy/NlYLY=
+github.com/Foxcapades/Beanies v1.1.0 h1:zIFjb3iaDOd7esBULeojFrsrR1wGb+yT+NRwB4rdaTA=
 github.com/Foxcapades/Beanies v1.1.0/go.mod h1:fvNTO4PhpGXDpgoU8VcjntSk3BIUYjEymqgbAEuLyQE=
+github.com/Foxcapades/Beanies v1.2.0 h1:yZ33IzaW438Le8QrwMqN+/0X2u1oxE7D8Rg0CSoVZYs=
+github.com/Foxcapades/Beanies v1.2.0/go.mod h1:fvNTO4PhpGXDpgoU8VcjntSk3BIUYjEymqgbAEuLyQE=
+github.com/Foxcapades/Beanies/v2 v2.0.1 h1:MWik5vHKMHI55gr1iZ+P+w6HzYQLk8rgzW1MclE71jg=
+github.com/Foxcapades/Beanies/v2 v2.0.1/go.mod h1:IvxBzn5S9HMNj91D36FuoHwb4c5B+o4750xRdBHKIdQ=
+github.com/Foxcapades/Beanies/v2 v2.0.2 h1:0pm6xsMZ36koVxlywLe+zhnODfUglln9OHY/zGpTxjs=
+github.com/Foxcapades/Beanies/v2 v2.0.2/go.mod h1:IvxBzn5S9HMNj91D36FuoHwb4c5B+o4750xRdBHKIdQ=
 github.com/Foxcapades/lib-go-eddystone v0.0.0-20190924110132-5eb306613fe2 h1:Xc4+YU1JbLJqGvqnFWR5l/dZMWsyFVqVqhyKqu20tWI=
 github.com/Foxcapades/lib-go-eddystone v0.0.0-20190924110132-5eb306613fe2/go.mod h1:AdYMsYe5qwf/RkP7ng6AoX4niVyhbVR71UskK0sUStQ=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=

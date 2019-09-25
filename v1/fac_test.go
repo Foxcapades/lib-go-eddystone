@@ -1,7 +1,7 @@
 package eddystone
 
 import (
-	"github.com/Foxcapades/lib-go-eddystone/v1/mock"
+	"errors"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -9,7 +9,7 @@ import (
 func TestFrameFactory_NewTlmFrame(t *testing.T) {
 	Convey("Method: FrameFactory.NewTlmFrame", t, func() {
 		Convey("Given any input", func() {
-			Convey("It should call the backing TLM factory function", func() {
+			Convey("It should call the backing TlmFrame factory function", func() {
 				ff := NewFrameFactory()
 				res := false
 				ff.TlmFrameFactory(func() TlmFrame {
@@ -30,23 +30,51 @@ func TestFrameFactory_NewTlmFrame(t *testing.T) {
 		})
 
 		Convey("Given a non nil byte array", func() {
-			Convey("It should call the backing frame FromBytes method", func() {
-				ff := NewFrameFactory()
-				mock := mockTlmFrame{}
-				in := []byte{1, 2, 3}
-
-				ff.TlmFrameFactory(func() TlmFrame { return &mock })
-				_, _ = ff.NewTlmFrame(in)
-
-				So(mock.mFromBytes.calls, ShouldEqual, 1)
-			})
 
 			Convey("It should pass up the frame value from the Tlm factory", func() {
-				// TODO
+				ff := NewFrameFactory()
+				mck := mockTlmFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.TlmFrameFactory(func() TlmFrame { return &mck })
+				out, _ := ff.NewTlmFrame(in)
+
+				So(out, ShouldResemble, &mck)
 			})
 
-			Convey("It should pass up the error value from the Tlm factory", func() {
-				// TODO
+			Convey("It should call the backing frame FromBytes method", func() {
+				ff := NewFrameFactory()
+				mck := mockTlmFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.TlmFrameFactory(func() TlmFrame { return &mck })
+				_, _ = ff.NewTlmFrame(in)
+
+				So(mck.MFromBytes.CallCount(), ShouldEqual, 1)
+			})
+
+			Convey("It should pass the byte slice to the Frame's FromBytes method", func() {
+				ff := NewFrameFactory()
+				mk := mockTlmFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.TlmFrameFactory(func() TlmFrame {return &mk})
+				_, _ = ff.NewTlmFrame(in)
+
+				So(mk.MFromBytes.Inputs[0], ShouldResemble, in)
+			})
+
+			Convey("It should pass up the error value from the TlmFrame FromBytes method", func() {
+				ff := NewFrameFactory()
+				ex := errors.New("butts")
+				mk := mockTlmFrame{}
+				in := []byte{1, 2, 3}
+
+				mk.MFromBytes.SetError(ex)
+				ff.TlmFrameFactory(func() TlmFrame {return &mk})
+				_, out := ff.NewTlmFrame(in)
+
+				So(out, ShouldEqual, ex)
 			})
 		})
 	})
@@ -55,7 +83,7 @@ func TestFrameFactory_NewTlmFrame(t *testing.T) {
 func TestFrameFactory_NewUrlFrame(t *testing.T) {
 	Convey("Method: FrameFactory.NewUrlFrame", t, func() {
 		Convey("Given any input", func() {
-			Convey("It should call the backing TLM factory function", func() {
+			Convey("It should call the backing UrlFrame factory function", func() {
 				ff := NewFrameFactory()
 				res := false
 				ff.UrlFrameFactory(func() UrlFrame {
@@ -76,23 +104,51 @@ func TestFrameFactory_NewUrlFrame(t *testing.T) {
 		})
 
 		Convey("Given a non nil byte array", func() {
-			Convey("It should call the backing frame FromBytes method", func() {
+
+			Convey("It should pass up the frame value from the UrlFrame factory", func() {
 				ff := NewFrameFactory()
-				mock := mockUrlFrame{}
+				mck := mockUrlFrame{}
 				in := []byte{1, 2, 3}
 
-				ff.UrlFrameFactory(func() UrlFrame { return &mock })
+				ff.UrlFrameFactory(func() UrlFrame { return &mck })
+				out, _ := ff.NewUrlFrame(in)
+
+				So(out, ShouldResemble, &mck)
+			})
+
+			Convey("It should call the backing frame FromBytes method", func() {
+				ff := NewFrameFactory()
+				mck := mockUrlFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.UrlFrameFactory(func() UrlFrame { return &mck })
 				_, _ = ff.NewUrlFrame(in)
 
-				So(mock.mFromBytes.calls, ShouldEqual, 1)
+				So(mck.MFromBytes.CallCount(), ShouldEqual, 1)
 			})
 
-			Convey("It should pass up the frame value from the Url factory", func() {
-				// TODO
+			Convey("It should pass the byte slice to the Frame's FromBytes method", func() {
+				ff := NewFrameFactory()
+				mk := mockUrlFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.UrlFrameFactory(func() UrlFrame {return &mk})
+				_, _ = ff.NewUrlFrame(in)
+
+				So(mk.MFromBytes.Inputs[0], ShouldResemble, in)
 			})
 
-			Convey("It should pass up the error value from the Url factory", func() {
-				// TODO
+			Convey("It should pass up the error value from the UrlFrame FromBytes method", func() {
+				ff := NewFrameFactory()
+				ex := errors.New("butts")
+				mk := mockUrlFrame{}
+				in := []byte{1, 2, 3}
+
+				mk.MFromBytes.SetError(ex)
+				ff.UrlFrameFactory(func() UrlFrame {return &mk})
+				_, out := ff.NewUrlFrame(in)
+
+				So(out, ShouldEqual, ex)
 			})
 		})
 	})
@@ -101,7 +157,7 @@ func TestFrameFactory_NewUrlFrame(t *testing.T) {
 func TestFrameFactory_NewUidFrame(t *testing.T) {
 	Convey("Method: FrameFactory.NewUidFrame", t, func() {
 		Convey("Given any input", func() {
-			Convey("It should call the backing TLM factory function", func() {
+			Convey("It should call the backing UidFrame factory function", func() {
 				ff := NewFrameFactory()
 				res := false
 				ff.UidFrameFactory(func() UidFrame {
@@ -122,23 +178,51 @@ func TestFrameFactory_NewUidFrame(t *testing.T) {
 		})
 
 		Convey("Given a non nil byte array", func() {
+
+			Convey("It should pass up the frame value from the UidFrame factory", func() {
+				ff := NewFrameFactory()
+				mck := mockUidFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.UidFrameFactory(func() UidFrame { return &mck })
+				out, _ := ff.NewUidFrame(in)
+
+				So(out, ShouldResemble, &mck)
+			})
+
 			Convey("It should call the backing frame FromBytes method", func() {
 				ff := NewFrameFactory()
-				mck := mock.UidFrame{}
+				mck := mockUidFrame{}
 				in := []byte{1, 2, 3}
 
 				ff.UidFrameFactory(func() UidFrame { return &mck })
 				_, _ = ff.NewUidFrame(in)
 
-				So(mck.MFromBytes.calls, ShouldEqual, 1)
+				So(mck.MFromBytes.CallCount(), ShouldEqual, 1)
 			})
 
-			Convey("It should pass up the frame value from the Uid factory", func() {
-				// TODO
+			Convey("It should pass the byte slice to the Frame's FromBytes method", func() {
+				ff := NewFrameFactory()
+				mk := mockUidFrame{}
+				in := []byte{1, 2, 3}
+
+				ff.UidFrameFactory(func() UidFrame {return &mk})
+				_, _ = ff.NewUidFrame(in)
+
+				So(mk.MFromBytes.Inputs[0], ShouldResemble, in)
 			})
 
-			Convey("It should pass up the error value from the Uid factory", func() {
-				// TODO
+			Convey("It should pass up the error value from the UidFrame FromBytes method", func() {
+				ff := NewFrameFactory()
+				ex := errors.New("butts")
+				mk := mockUidFrame{}
+				in := []byte{1, 2, 3}
+
+				mk.MFromBytes.SetError(ex)
+				ff.UidFrameFactory(func() UidFrame {return &mk})
+				_, out := ff.NewUidFrame(in)
+
+				So(out, ShouldEqual, ex)
 			})
 		})
 	})

@@ -22,6 +22,6 @@ type Frame interface {
 	ToBytes() []byte
 
 	// FromBytes parses the given byte array and writes the
-	// parsed values to the internal store for this Frame
+	// parsed values to the internal store for this mockFrame
 	FromBytes(b []byte) error
 }
